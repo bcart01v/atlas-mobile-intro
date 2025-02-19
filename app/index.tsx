@@ -1,17 +1,10 @@
 import { useEffect, useState, useCallback } from 'react';
-import { View, Text, Button, StyleSheet, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, Alert, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { FlashList } from '@shopify/flash-list';
 import { useFocusEffect } from '@react-navigation/native';
-import {
-  getActivities,
-  deleteAllActivities,
-  setupDatabase,
-  deleteActivityById,
-} from '../utils/database';
-import SwipeableItem, {
-  useSwipeableItemParams,
-} from 'react-native-swipeable-item';
+import { getActivities, deleteAllActivities, setupDatabase, deleteActivityById } from '../utils/database';
+import SwipeableItem, { useSwipeableItemParams } from 'react-native-swipeable-item';
 import OverlayProvider from 'react-native-swipeable-item';
 import Animated, { Layout, FadeOutRight } from 'react-native-reanimated';
 
@@ -63,10 +56,6 @@ export default function HomeScreen() {
   return (
     <OverlayProvider item={{}}>
       <View style={styles.container}>
-        <Text style={styles.title}>Activity Tracker</Text>
-        <Button title="Add Activity" onPress={() => router.push('/add-activity')} />
-        <Button title="Delete All Activities" onPress={handleDeleteAll} color="red" />
-
         <FlashList
           data={activities}
           keyExtractor={(item) => item.id.toString()}
@@ -75,6 +64,20 @@ export default function HomeScreen() {
           )}
           estimatedItemSize={50}
         />
+
+        <TouchableOpacity 
+          style={styles.addButton}
+          onPress={() => router.push('/add-activity')}
+        >
+          <Text style={styles.addButtonText}>Add activity</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.deleteButton}
+          onPress={handleDeleteAll}
+        >
+          <Text style={styles.deleteButtonText}>Delete all activities</Text>
+        </TouchableOpacity>
       </View>
     </OverlayProvider>
   );
@@ -99,35 +102,39 @@ const SwipeableActivity = ({
       renderUnderlayLeft={() => (
         <View style={[styles.underlay, { alignItems: 'flex-end' }]}>
           <TouchableOpacity
-            style={styles.deleteButton}
+            style={styles.deleteSwipeButton}
             onPress={() => {
               onDelete(item.id);
               close();
             }}
           >
-            <Text style={styles.deleteText}>Delete</Text>
+            <Text style={styles.deleteSwipeButtonText}>Delete</Text>
           </TouchableOpacity>
         </View>
       )}
       renderUnderlayRight={() => (
         <View style={[styles.underlay, { alignItems: 'flex-start' }]}>
           <TouchableOpacity
-            style={styles.deleteButton}
+            style={styles.deleteSwipeButton}
             onPress={() => {
               onDelete(item.id);
               close();
             }}
           >
-            <Text style={styles.deleteText}>Delete</Text>
+            <Text style={styles.deleteSwipeButtonText}>Delete</Text>
           </TouchableOpacity>
         </View>
       )}
     >
-      <Animated.View style={styles.item} layout={Layout.springify()} exiting={FadeOutRight}>
+      <Animated.View 
+        style={styles.activityItem} 
+        layout={Layout.springify()} 
+        exiting={FadeOutRight}
+      >
         <Text style={styles.dateText}>
           {new Date(item.date * 1000).toLocaleString()}
         </Text>
-        <Text style={styles.text}>Steps: {item.steps}</Text>
+        <Text style={styles.stepsText}>Steps: {item.steps}</Text>
       </Animated.View>
     </SwipeableItem>
   );
@@ -136,50 +143,65 @@ const SwipeableActivity = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#FFF9E6',
+    paddingHorizontal: 10,
+    paddingTop: 20,
+    paddingBottom: 10,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  item: {
-    flex: 1,
-    padding: 15,
-    marginVertical: 5,
+  activityItem: {
     backgroundColor: '#fff',
-    borderRadius: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 1.5,
-    elevation: 2,
+    borderWidth: 2,
+    borderColor: '#000',
+    padding: 10,
+    marginVertical: 5,
   },
   dateText: {
+    color: '#000',
     fontSize: 14,
-    color: '#555',
+    marginBottom: 5,
   },
-  text: {
+  stepsText: {
+    color: '#000',
     fontSize: 18,
-    fontWeight: 'bold',
   },
   underlay: {
     flex: 1,
     backgroundColor: 'transparent',
     justifyContent: 'center',
   },
-  deleteButton: {
+  deleteSwipeButton: {
     width: 80,
     height: '100%',
     backgroundColor: 'red',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  deleteText: {
-    fontSize: 16,
-    color: 'white',
+  deleteSwipeButtonText: {
+    color: '#fff',
     fontWeight: 'bold',
+  },
+  addButton: {
+    width: '100%',
+    backgroundColor: '#00CBA9',
+    padding: 20,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  addButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  deleteButton: {
+    width: '100%',
+    backgroundColor: 'red',
+    padding: 20,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  deleteButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });
